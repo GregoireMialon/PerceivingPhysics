@@ -1,0 +1,62 @@
+name: obj_recog
+channels: !!python/tuple
+- defaults
+dependencies:
+- cairo=1.14.6=0
+- cycler=0.10.0=py27_0
+- dbus=1.10.10=0
+- expat=2.1.0=0
+- fontconfig=2.12.1=0
+- freetype=2.5.5=1
+- funcsigs=1.0.2=py27_0
+- glib=2.50.2=0
+- gst-plugins-base=1.8.0=0
+- gstreamer=1.8.0=0
+- harfbuzz=0.9.39=1
+- icu=54.1=0
+- jpeg=8d=2
+- libffi=3.2.1=1
+- libgcc=5.2.0=0
+- libgfortran=3.0.0=1
+- libiconv=1.14=0
+- libpng=1.6.17=0
+- libprotobuf=3.0.0=0
+- libxcb=1.12=1
+- libxml2=2.9.4=0
+- matplotlib=1.5.1=np110py27_0
+- mkl=11.3.3=0
+- mkl-service=1.1.2=py27_2
+- mock=2.0.0=py27_0
+- numpy=1.10.4=py27_2
+- opencv=2.4.10=np110py27_1
+- openssl=1.0.2j=0
+- pango=1.40.3=0
+- pbr=1.10.0=py27_0
+- pcre=8.39=1
+- pip=9.0.1=py27_1
+- pixman=0.34.0=0
+- protobuf=3.0.0=py27_0
+- pycairo=1.10.0=py27_0
+- pyparsing=2.1.4=py27_0
+- pyqt=4.11.4=py27_4
+- python=2.7.12=1
+- python-dateutil=2.6.0=py27_0
+- pytz=2016.10=py27_0
+- qt=4.8.7=4
+- readline=6.2=2
+- scipy=0.17.1=np110py27_1
+- setuptools=27.2.0=py27_0
+- sip=4.18=py27_0
+- six=1.10.0=py27_0
+- sqlite=3.13.0=0
+- theano=0.8.2=py27_0
+- tk=8.5.18=0
+- wheel=0.29.0=py27_0
+- zlib=1.2.8=3
+- pip:
+  - f.lux-indicator-applet==1.1.8
+  - pandas==0.19.1
+  - seaborn==0.7.1
+  - tensorflow==0.11.0
+  - tensorflow-gpu==0.12.0rc1
+prefix: /home/geoff/anaconda3/envs/obj_recog
