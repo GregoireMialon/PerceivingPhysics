@@ -1,3 +1,6 @@
 *.pdf
 *.pyc
 idea/
+/vgg16_weights.h5
+.idea/
+vgg16_weights.h5
