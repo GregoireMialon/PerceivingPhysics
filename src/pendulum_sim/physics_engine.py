@@ -39,7 +39,7 @@ class SimplePendulum(pygame.sprite.Sprite):
                  dt=0.01):
         pygame.sprite.Sprite.__init__(self)
         self.lab = lab
-        # Position from top-left to pendulum pivot
+        # Position from top-left of SCREEN to pendulum pivot
         self.pivot_pos = pivot_pos
         self.m = m
         self.l = l
@@ -54,9 +54,11 @@ class SimplePendulum(pygame.sprite.Sprite):
         self.image = pygame.Surface((swinglength * 2, swinglength * 2)).convert()
         self.rect = self.image.get_rect()
         self.rect.topleft = (pivot_pos[0] - swinglength, pivot_pos[1] - swinglength)
-        self.m_X = int(self.l * np.sin(theta0) + self.rect.width // 2)
-        self.m_Y = int(self.l * np.cos(theta0) + self.rect.height // 2)
+        self.pivot_center = (self.rect.width // 2, self.rect.height // 2)
+        self.m_X = int(self.l * np.sin(theta0) + self.pivot_center[0])
+        self.m_Y = int(self.l * np.cos(theta0) + self.pivot_center[1])
         self.m_rect = None
+        self.pivot_rect = None
 
         self._render()
 
@@ -65,15 +67,18 @@ class SimplePendulum(pygame.sprite.Sprite):
         self.image.fill(COLOR['white'])
         m_pos = (self.m_X, self.m_Y)
         # draw tether
-        pygame.draw.aaline(self.image, COLOR['black'], (self.rect.width // 2, self.rect.height // 2), m_pos, True)
+        pygame.draw.aaline(self.image, COLOR['black'], self.pivot_center, m_pos, True)
         # draw the mass
         # self.m_rect = pygame.draw.circle(self.image, COLOR['blue'], m_pos, self.radius, 0)
         self.m_rect = pygame.draw.circle(self.image, COLOR['blue'], m_pos, self.radius, 0)
+        self.pivot_rect = pygame.draw.circle(self.image, COLOR['black'], self.pivot_center, 5, 0)
 
-        x1, y1 = self.m_rect.topleft
+        xm, ym = self.m_rect.topleft
+        xp, yp = self.pivot_rect.topleft
         x2, y2 = self.rect.topleft
         # make the reference absolute
-        self.m_rect.topleft = (x1 + x2, y1 + y2)  # make the reference absolute
+        self.m_rect.topleft = (xm + x2, ym + y2)  # make the reference absolute
+        self.pivot_rect.topleft = (xp + x2, yp + y2)
 
     def simulate(self):
         """Returns a generator of next angular position, at current angle and angle speed"""
@@ -101,53 +106,94 @@ class SimplePendulum(pygame.sprite.Sprite):
             h4 = dt * p_dot(q + k3)
             q += ((k1 + k4) / 2.0 + k2 + k3) / 3.0
             p += ((h1 + h4) / 2.0 + h2 + h3) / 3.0
-            p, q, q_dot_val = self.bounce(p, q, q_dot(p))
-            yield (q, q_dot_val)
+            yield (q, q_dot(p))
 
-    def bounce(self, p, q, q_dot_val):
+    def bounce(self, q, q_dot_val):
         width = self.rect.width
         height = self.rect.height
-        if width // 2 - np.abs(self.l * np.sin(q)) <= self.radius\
-                or height // 2 - np.abs(self.l * np.cos(q)) <= self.radius:
-            q_dot_val *= -self.restitution
-            p *= -self.restitution
-        return p, q, q_dot_val
+        sg = np.sign(q_dot_val)
+        if self.pivot_center[0] + self.l * np.sin(self.theta) < self.radius:
+            # bounce left
+            self.theta = np.arcsin((self.radius - self.pivot_center[0]) / self.l)
+            if np.abs(q) >= np.pi / 2:
+                self.theta = np.pi - self.theta
+            print(self.theta)
+            self.theta_dot = -self.restitution * q_dot_val
+            self.simulator = self.simulate()
+        elif width - self.pivot_center[0] < self.l * np.sin(self.theta) + self.radius:
+            # bounce right
+            self.theta = np.arcsin((width - self.pivot_center[0] - self.radius) / self.l)
+            if np.abs(q) >= np.pi / 2:
+                self.theta = np.pi - self.theta
+            self.theta_dot = -self.restitution * q_dot_val
+            self.simulator = self.simulate()
+        elif self.pivot_center[1] + self.l * np.cos(self.theta) < self.radius:
+            # bounce up
+            self.theta = - sg * np.arccos((self.radius - self.pivot_center[1]) / self.l)
+            self.theta_dot = -self.restitution * q_dot_val
+            self.simulator = self.simulate()
+        elif height - self.pivot_center[1] < self.l * np.cos(self.theta) + self.radius:
+            # bounce down
+            self.theta = - sg * np.arccos((height - self.pivot_center[1] - self.radius) / self.l)
+            self.theta_dot = -self.restitution * q_dot_val
+            self.simulator = self.simulate()
+        else:
+            self.theta = q
+            self.theta_dot = q_dot_val
 
     def update(self):
-        self.theta = self.simulator.next()[0]
+        q, q_dot = self.simulator.next()
+        self.bounce(q, q_dot)
         X = int(self.l * np.sin(self.theta))
         Y = int(self.l * np.cos(self.theta))
 
-        self.m_X = X + self.rect.width // 2
-        self.m_Y = Y + self.rect.height // 2
+        self.m_X = X + self.pivot_center[0]
+        self.m_Y = Y + self.pivot_center[1]
         self._render()
 
     def update_held(self, mouse_pos):
         mouse_x, mouse_y = mouse_pos
-        self.m_X = mouse_x - self.lever_x - self.m_rect.width // 2
-        self.m_Y = mouse_y - self.lever_y - self.m_rect.height // 2
-        self.l = np.sqrt((self.m_X - self.rect.width // 2) ** 2 + (self.m_Y - self.rect.height // 2) ** 2)
+        if self.held == 'mass':
+            self.m_X = mouse_x - self.lever_x - self.m_rect.width // 2
+            self.m_Y = mouse_y - self.lever_y - self.m_rect.height // 2
+        elif self.held == 'pivot':
+            self.pivot_center = (mouse_x - self.lever_x - self.m_rect.width // 2,
+                                 mouse_y - self.lever_y - self.m_rect.height // 2)
+        self.l = np.sqrt((self.m_X - self.pivot_center[0]) ** 2 + (self.m_Y - self.pivot_center[1]) ** 2)
         # calculate the new parameters
-        self.theta = atan2(self.m_X - self.rect.width // 2, self.m_Y - self.rect.height // 2)
+        self.theta = atan2(self.m_X - self.pivot_center[0], self.m_Y - self.pivot_center[1])
         self._render()
 
-    def grab(self, mouse_pos):
+    def grab_mass(self, mouse_pos):
         mouse_x, mouse_y = mouse_pos
         m_x, m_y = self.m_rect.center
-        self.held = True
+        self.held = 'mass'
         self.lever_x = mouse_x - m_x
         self.lever_y = mouse_y - m_y
         print("Grabbed the bob a vector from center ({}, {})".format(self.lever_x, self.lever_y))
+
+    def grab_pivot(self, mouse_pos):
+        mouse_x, mouse_y = mouse_pos
+        p_x, p_y = self.pivot_rect.center
+        self.held = 'pivot'
+        self.lever_x = mouse_x - p_x
+        self.lever_y = mouse_y - p_y
+        print("Grabbed the pivot a vector from center ({}, {})".format(self.lever_x, self.lever_y))
 
     def point_on_mass(self, point):
         x, y = point
         return self.m_rect.collidepoint(x, y)
 
+    def point_on_pivot(self, point):
+        x, y = point
+        return self.pivot_rect.collidepoint(x, y)
+
     def release(self):
         # Put angle speed to zero and simulate
-        try:
-            in_theta_dot = input("Enter a value of Theta_0.")
-            self.theta_dot = in_theta_dot
-        except SyntaxError:
-            self.theta_dot = 0
+        # try:
+        #     in_theta_dot = input("Enter a value of Theta_0.")
+        #     self.theta_dot = in_theta_dot
+        # except SyntaxError:
+        #     self.theta_dot = 0
+        self.theta_dot = 0
         self.simulator = self.simulate()

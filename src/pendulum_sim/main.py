@@ -16,7 +16,7 @@ def main():
     background.fill(COLOR['black'])
     # Prepare Objects
     clock = pygame.time.Clock()
-    pendulum = SimplePendulum(m=1, l=300, theta0=np.pi / 5, theta_dot0=10, radius=50, pivot_pos=SCREEN_CENTER)
+    pendulum = SimplePendulum(m=1, l=300, theta0=np.pi / 5, theta_dot0=10, radius=50, restitution=.9, pivot_pos=SCREEN_CENTER)
     free_group = pygame.sprite.RenderPlain((pendulum,))
     held_group = pygame.sprite.RenderPlain()
     # Display The Background
@@ -37,8 +37,13 @@ def main():
                 print "Mouse Button Down"
                 mouse_pos = pygame.mouse.get_pos()
                 for p in free_group:
-                    if p.point_on_mass(mouse_pos):     # if user clicked on the bob grab it
-                        p.grab(mouse_pos)
+                    if p.point_on_mass(mouse_pos):     # if user clicked on the mass grab it
+                        p.grab_mass(mouse_pos)
+                        held_group.add(p)
+                        free_group.remove(p)
+                    elif p.point_on_pivot(mouse_pos): # if user clicked on the pivot grab it
+                        print("Something")
+                        p.grab_pivot(mouse_pos)
                         held_group.add(p)
                         free_group.remove(p)
             elif event.type is MOUSEBUTTONUP:
