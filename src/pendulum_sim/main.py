@@ -16,7 +16,7 @@ def main():
     background.fill(COLOR['black'])
     # Prepare Objects
     clock = pygame.time.Clock()
-    pendulum = SimplePendulum(m=1, l=300, theta0=np.pi / 5, radius=50, pivot_pos=SCREEN_CENTER)
+    pendulum = SimplePendulum(m=1, l=300, theta0=np.pi / 5, theta_dot0=10, radius=50, pivot_pos=SCREEN_CENTER)
     free_group = pygame.sprite.RenderPlain((pendulum,))
     held_group = pygame.sprite.RenderPlain()
     # Display The Background

@@ -101,14 +101,14 @@ class SimplePendulum(pygame.sprite.Sprite):
             h4 = dt * p_dot(q + k3)
             q += ((k1 + k4) / 2.0 + k2 + k3) / 3.0
             p += ((h1 + h4) / 2.0 + h2 + h3) / 3.0
-            p, q, q_dot_val = self.bounced(p, q, q_dot(p))
+            p, q, q_dot_val = self.bounce(p, q, q_dot(p))
             yield (q, q_dot_val)
 
-    def bounced(self, p, q, q_dot_val):
+    def bounce(self, p, q, q_dot_val):
         width = self.rect.width
-        print(width)
-        print(self.l * np.sin(q))
-        if width // 2 - np.abs(self.l * np.sin(q)) <= self.radius:
+        height = self.rect.height
+        if width // 2 - np.abs(self.l * np.sin(q)) <= self.radius\
+                or height // 2 - np.abs(self.l * np.cos(q)) <= self.radius:
             q_dot_val *= -self.restitution
             p *= -self.restitution
         return p, q, q_dot_val
@@ -145,5 +145,9 @@ class SimplePendulum(pygame.sprite.Sprite):
 
     def release(self):
         # Put angle speed to zero and simulate
-        self.theta_dot = 0
+        try:
+            in_theta_dot = input("Enter a value of Theta_0.")
+            self.theta_dot = in_theta_dot
+        except SyntaxError:
+            self.theta_dot = 0
         self.simulator = self.simulate()
