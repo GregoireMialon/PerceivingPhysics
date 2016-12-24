@@ -220,8 +220,10 @@ def main():
         #Handle Input Events
         for event in pygame.event.get():
             if event.type == QUIT:
+                pygame.quit()
                 return
             elif event.type == KEYDOWN and event.key == K_ESCAPE:
+                pygame.quit()
                 return
         free_group.update()
         #send the mouse position to the held bobs so we can move them
