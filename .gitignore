@@ -4,3 +4,6 @@ idea/
 /vgg16_weights.h5
 .idea/
 vgg16_weights.h5
+/data/
+data/
+src/video_processing/.cache/
