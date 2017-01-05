@@ -9,11 +9,13 @@ auth: Geoffrey Negiar
 """
 
 ###############################################################################
-from __future__ import print_function, division
+from __future__ import division, print_function
+
+from math import atan2
+
 import numpy as np
 import pygame
 import pygame.surfarray
-from math import atan2
 
 COLOR = {'black': (0, 0, 0),
          'red': (255, 0, 0),
@@ -59,6 +61,9 @@ class SimplePendulum(pygame.sprite.Sprite):
         self.m_Y = int(self.l * np.cos(theta0) + self.pivot_center[1])
         self.m_rect = None
         self.pivot_rect = None
+
+        self.m_pos_hist = np.zeros((0, 2))
+        self.pivot_pos_hist = np.array(self.pivot_center)
 
         self._render()
 
@@ -149,6 +154,7 @@ class SimplePendulum(pygame.sprite.Sprite):
 
         self.m_X = X + self.pivot_center[0]
         self.m_Y = Y + self.pivot_center[1]
+        self.m_pos_hist = np.vstack((self.m_pos_hist, (self.m_X, self.m_Y)))
         self._render()
 
     def update_held(self, mouse_pos):

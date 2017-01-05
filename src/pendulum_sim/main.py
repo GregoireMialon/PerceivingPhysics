@@ -29,9 +29,11 @@ def main():
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
+                np.savetxt("../../data/m_hist.csv", pendulum.m_pos_hist)
                 return
             elif event.type == KEYDOWN and event.key == K_ESCAPE:
                 pygame.quit()
+                np.savetxt("../../data/m_hist.csv", pendulum.m_pos_hist)
                 return
             elif event.type == MOUSEBUTTONDOWN:
                 print "Mouse Button Down"
