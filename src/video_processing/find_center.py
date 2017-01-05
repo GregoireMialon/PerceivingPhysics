@@ -6,8 +6,8 @@ xA = min(centers[:, 0])
 xB = max(centers[:, 0])
 
 xC = (xB - xA) / 2
-yC = np.argmin(np.abs(centers[:, 0] - xC))
-
+idx = np.argmin(np.abs(centers[:, 0] - xC))
+yC = centers[idx, 1]
 yA = np.mean(centers[np.where(centers[:, 0] == xA)[0], 1])
 yB = np.mean(centers[np.where(centers[:, 0] == xB)[0], 1])
 
