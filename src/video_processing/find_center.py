@@ -1,24 +1,28 @@
 import numpy as np
 
-centers = np.loadtxt('../../data/m_hist.csv')
 
-xA = min(centers[:, 0])
-xB = max(centers[:, 0])
+def find_pivot(f='../../data/m_hist.csv'):
+    centers = np.loadtxt(f)
 
-xC = (xB - xA) / 2
-idx = np.argmin(np.abs(centers[:, 0] - xC))
-yC = centers[idx, 1]
-yA = np.mean(centers[np.where(centers[:, 0] == xA)[0], 1])
-yB = np.mean(centers[np.where(centers[:, 0] == xB)[0], 1])
+    xA = min(centers[:, 0])
+    xB = max(centers[:, 0])
 
-# Chercher Pivot P tel que xP = xC et PC = PB
-xP = xC
-yP = ((xC - xB) ** 2 + yB ** 2 - yC ** 2) / (2 * (yB - yC))
+    xC = (xB - xA) / 2
+    idx = np.argmin(np.abs(centers[:, 0] - xC))
+    yC = centers[idx, 1]
+    yA = np.mean(centers[np.where(centers[:, 0] == xA)[0], 1])
+    yB = np.mean(centers[np.where(centers[:, 0] == xB)[0], 1])
 
-L = abs(yP - yC)
-print("Length of the string :")
-print(L)
-print ("Coordinates of the pivot :")
-print([xP, yP])
+    # Chercher Pivot P tel que xP = xC et PC = PB
+    xP = xC
+    yP = ((xC - xB) ** 2 + yB ** 2 - yC ** 2) / (2 * (yB - yC))
 
-estimateLength = np.mean(np.sqrt((centers[:, 0] - xP) ** 2 + (centers[:, 1] - yP) ** 2))
+    L = abs(yP - yC)
+    print("Length of the string :")
+    print(L)
+    print ("Coordinates of the pivot :")
+    print([xP, yP])
+
+    estimateLength = np.mean(np.sqrt((centers[:, 0] - xP) ** 2 + (centers[:, 1] - yP) ** 2))
+
+    return estimateLength, (xP, yP), centers

@@ -37,7 +37,8 @@ class Lab(object):
 
 
 class SimplePendulum(pygame.sprite.Sprite):
-    def __init__(self, m, l, radius, pivot_pos=SCREEN_CENTER, theta0=np.pi / 2, theta_dot0=0, restitution=1, lab=Lab(),
+    def __init__(self, m, l, pivot_pos=SCREEN_CENTER, theta0=np.pi / 2, radius=50, theta_dot0=0, restitution=1,
+                 lab=Lab(),
                  dt=0.01):
         pygame.sprite.Sprite.__init__(self)
         self.lab = lab
